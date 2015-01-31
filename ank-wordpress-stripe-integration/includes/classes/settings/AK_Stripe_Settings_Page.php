@@ -21,9 +21,10 @@ class AK_Stripe_Settings_Page {
         add_action('admin_menu', array ($this, 'ak_stripe_settings_setup'));
         add_action('admin_init', array ($this ,'ak_stripe_register_settings'));
         add_action( 'admin_enqueue_scripts', array ($this,'add_ajax_javascript_file' ));
-        $ak_create_plan = new AK_Stripe_Manage_Plans();
-        add_action( 'wp_ajax_create_stripe_plan', array ($ak_create_plan,'ajax_create_stripe_plan' ));
-        add_action( 'wp_ajax_get_stripe_plan', array ($ak_create_plan,'get_stripe_plan' ));
+        $ak_manage_plan = new AK_Stripe_Manage_Plans();
+        add_action( 'wp_ajax_create_stripe_plan', array ($ak_manage_plan,'ajax_create_stripe_plan' ));
+        add_action( 'wp_ajax_get_stripe_plan', array ($ak_manage_plan,'get_stripe_plan' ));
+        add_action( 'wp_ajax_delete_stripe_plan', array ($ak_manage_plan,'ajax_delete_stripe_plan' ));
     }    
     
     function ak_stripe_settings_setup() {

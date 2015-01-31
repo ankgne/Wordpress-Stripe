@@ -109,7 +109,6 @@ RunClub Silver Plan. ", 'ank_stripe'); ?></label>
 /*Called from ajax-javascript.js*/
 function ajax_create_stripe_plan() 
 {
-    
     if(!empty($_POST['post_id']))
     {
         $post = get_post( $_POST['post_id'] );
@@ -134,7 +133,7 @@ function ajax_create_stripe_plan()
 function get_stripe_plan() 
 {
     ?>
-                
+                <form  method="post" action="" id="ak-stripe-delete-plan-form">
                 <table class="wp-list-table widefat fixed posts stripe-retrive-plan-table">
                         <thead>
                                 <tr>
@@ -144,6 +143,7 @@ function get_stripe_plan()
                                         <th><?php _e('Billing Frequency', 'ank_stripe'); ?></th>
                                         <th><?php _e('Trial', 'ank_stripe'); ?></th>
                                         <th><?php _e('Create Time (in UTC)', 'ank_stripe'); ?></th>
+                                        <th><?php _e('Select to delete', 'ank_stripe'); ?></th>
                                 </tr>
                         </thead>
                         <tfoot>
@@ -154,6 +154,7 @@ function get_stripe_plan()
                                         <th><?php _e('Billing Frequency', 'ank_stripe'); ?></th>
                                         <th><?php _e('Trial', 'ank_stripe'); ?></th>
                                         <th><?php _e('Create Time (in UTC)', 'ank_stripe'); ?></th>
+                                        <th><?php _e('Select to delete', 'ank_stripe'); ?></th>
                                 </tr>
                         </tfoot>
                         <tbody>
@@ -172,6 +173,7 @@ function get_stripe_plan()
                                                 
                                                 <td><?php echo (is_null($row->trial_days)?"No Trial" : ($row->trial_days) . " " . ($row->trial_days=="1"?"day" : "days")) ; ?></td>
                                                 <td><?php echo date_i18n('Y-m-d H:i:s', $row->create_time ); ?></td>
+                                                <td><?php echo "<input type='checkbox' name='check_list[]' value='$row->plan_id'>"; ?></td>
                                                 
                                         </tr>
                                         <?php
@@ -185,6 +187,30 @@ function get_stripe_plan()
                         ?>	
                         </tbody>
                 </table>
+                    	<p class="submit">
+				<input type="submit" class="button-primary ak-stripe-delete-plan-button" value="<?php _e('Delete Plan', 'ank_stripe'); ?>" />
+                                <input type="submit" class="button-primary ak-stripe-delete-plans-button" value="<?php _e('Delete Plans', 'ank_stripe'); ?>" />
+			</p>
+                </form>
     <?php            
     }
+function ajax_delete_stripe_plan() 
+{
+    if(!empty($_POST['datastring']))
+    {
+        $ak_delete_plan = new AK_Stripe_Payment_Functions();    
+        foreach ($_POST['datastring'] as $plan_id){
+            $result=$ak_delete_plan->AK_DeletePlan($plan_id);
+            if($result->deleted){
+                continue;
+            }
+        }
+        
+
+        
+        //print_r (explode("&",$_POST['datastring']));
+    }
+
+    die();
+}    
 }
