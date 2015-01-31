@@ -128,5 +128,18 @@ class AK_Stripe_Payment_Functions {
             return $e->getMessage();
         }
             
-    }    
+    }
+    
+    
+    public function AK_DeletePlan ($plan_id){
+        try {
+        $this->AK_setStripeApi();  
+        $plan = Stripe_Plan::retrieve("$plan_id");
+        return $plan->delete();
+
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+            
+    }  
 }
