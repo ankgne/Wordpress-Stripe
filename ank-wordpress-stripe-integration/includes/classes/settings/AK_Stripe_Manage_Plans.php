@@ -24,7 +24,9 @@ class AK_Stripe_Manage_Plans {
                         <div id="stripe-create-plan-success" class="updated"></div> <!-- for success message-->
                         <div id="stripe-create-plan-failure" class="error" ></div> <!-- for failure message-->
 			<table class="form-table stripe-create-plan-table">
+                            
 				<tbody>
+                                    <div id="loaderImg_create_plan"><img src=<?php echo STRIPE_BASE_URL . "/images/ajax-loader.gif" ?> alt="loader-image" style="display: block; margin-left: auto; margin-right: auto;"/></div>
 					<tr valign="top">	
 						<th scope="row" valign="top">
 							<?php _e('ID', 'ank_stripe'); ?>
@@ -134,6 +136,9 @@ function get_stripe_plan()
 {
     ?>
                 <form  method="post" action="" id="ak-stripe-delete-plan-form">
+                <div id="loaderImg_retrieve_plan"><img src=<?php echo STRIPE_BASE_URL . "/images/ajax-loader.gif" ?> alt="loader-image" style="display: block; margin-left: auto; margin-right: auto;"/></div>
+                <div id="stripe-retrieve-plan-success" class="updated"></div> <!-- for success message-->
+                <div id="stripe-retrieve-plan-failure" class="error" ></div> <!-- for failure message-->
                 <table class="wp-list-table widefat fixed posts stripe-retrive-plan-table">
                         <thead>
                                 <tr>
@@ -188,12 +193,16 @@ function get_stripe_plan()
                         </tbody>
                 </table>
                     	<p class="submit">
-				<input type="submit" class="button-primary ak-stripe-delete-plan-button" value="<?php _e('Delete Plan', 'ank_stripe'); ?>" />
-                                <input type="submit" class="button-primary ak-stripe-delete-plans-button" value="<?php _e('Delete Plans', 'ank_stripe'); ?>" />
+				<input type="submit" class="button-primary ak-stripe-delete-plan-button" value="<?php _e('Delete Plan', 'ank_stripe'); ?>" style="display: none;" />
+                                <input type="submit" class="button-primary ak-stripe-delete-plans-button" value="<?php _e('Delete Plans', 'ank_stripe'); ?>"  style="display: none;" />
 			</p>
                 </form>
-    <?php            
+        
+    <?php   
+    die();
     }
+    
+    
 function ajax_delete_stripe_plan() 
 {
     if(!empty($_POST['datastring']))
@@ -201,13 +210,14 @@ function ajax_delete_stripe_plan()
         $ak_delete_plan = new AK_Stripe_Payment_Functions();    
         foreach ($_POST['datastring'] as $plan_id){
             $result=$ak_delete_plan->AK_DeletePlan($plan_id);
-            if($result->deleted){
-                continue;
+            
+            if($result->deleted){ //successful plan deletion returns 1
+                echo "success";
+            }
+            else {
+                echo "failed";
             }
         }
-        
-
-        
         //print_r (explode("&",$_POST['datastring']));
     }
 

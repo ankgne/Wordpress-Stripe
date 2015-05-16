@@ -42,9 +42,9 @@ class AK_Stripe_Settings_Page {
 	register_setting('stripe_settings_group', 'stripe_settings');
 }
 
-function add_ajax_javascript_file()
-{
-    wp_enqueue_script( 'ajax_custom_script', STRIPE_BASE_URL . 'includes/js/ajax-javascript.js', array('jquery') );
+    function add_ajax_javascript_file()
+    {
+        wp_enqueue_script( 'ajax_custom_script', STRIPE_BASE_URL . 'includes/js/ajax-javascript.js', array('jquery') );
+        }
+
     }
-     
-}
