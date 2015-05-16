@@ -89,6 +89,7 @@ jQuery(document).ready(function($)
                 $("#stripe-retrieve-plan-success").show();
                 $("#loaderImg_retrieve_plan").hide();
                 $(".stripe-retrive-plan-table").show();
+                fetch_stripe_plans();
             }
             else {
                 var error_message = "";
@@ -114,10 +115,14 @@ jQuery(document).ready(function($)
         var data = {
         'action': 'get_stripe_plan'
         };
-          $.post(ajaxurl, data, function(response) {
+        $.post(ajaxurl, data, function(response) {
             $("#ak-stripe-delete-plan-form").html(response);  
             //$("#ak-stripe-delete-plan-form").show();
             $("#loaderImg_retrieve_plan").hide();
+            $("#stripe-create-plan-success").hide();//hide by default 
+            $("#stripe-create-plan-failure").hide();//hide by default  
+            $("#stripe-retrieve-plan-success").hide();//hide by default  
+            $("#stripe-retrieve-plan-failure").hide();//hide by default  
         }); 
         return false;
     }
