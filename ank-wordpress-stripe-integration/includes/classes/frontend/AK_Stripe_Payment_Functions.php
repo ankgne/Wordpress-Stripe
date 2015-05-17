@@ -11,7 +11,7 @@
  *
  * @author com
  */
-require_once(STRIPE_BASE_DIR . '/lib/Stripe.php');
+require_once(STRIPE_BASE_DIR . '/stripe/init.php');
 
 class AK_Stripe_Payment_Functions {
 
@@ -47,7 +47,7 @@ class AK_Stripe_Payment_Functions {
     public function AK_setStripeApi() {
         try {
             $key = $this->getSecret_key();
-            Stripe::setApiKey($key);
+            \Stripe\Stripe::setApiKey($key);
         } catch (Exception $e) {
             // redirect on failed payment
             //echo $e;    
@@ -58,14 +58,14 @@ class AK_Stripe_Payment_Functions {
     public function AK_CreateCharge() {
         try {
             $this->AK_setStripeApi();
-            $charge = Stripe_Charge::create(array(
+            $charge = \Stripe\Charge::create(array(
                         'amount' => 1000, // $10
                         'currency' => 'usd',
                         'card' => $this->getToken()
                             )
             );
             // redirect on successful payment
-            //print_r ($charge['id']);
+            //print_r ($charge);
             $redirect = add_query_arg(array('payment' => 'paid', 'ID' => $charge['id']), $_POST['redirect']);
         } catch (Exception $e) {
             // redirect on failed payment
@@ -80,7 +80,7 @@ class AK_Stripe_Payment_Functions {
     public function AK_RetrieveCharge($card) {
         try {
             $this->AK_setStripeApi();
-            return Stripe_Charge::retrieve($card);
+            return \Stripe\Charge::retrieve($card);
         } catch (Exception $e) {
             // redirect on failed payment
             //echo $e;    
@@ -94,7 +94,7 @@ class AK_Stripe_Payment_Functions {
     public function AK_CreatePlan(array $create_plan) {
         try {
             $this->AK_setStripeApi();
-            $create_plan_return = Stripe_Plan::create(array(
+            $create_plan_return = \Stripe\Plan::create(array(
                         "amount" => ($create_plan[2]),
                         "interval" => ($create_plan[3]),
                         "name" => ($create_plan[1]),
@@ -114,7 +114,7 @@ class AK_Stripe_Payment_Functions {
         try {
             $this->AK_setStripeApi();
 
-            return Stripe_Plan::all(array("include[]" => total_count));
+            return \Stripe\Plan::all(array("include[]" => total_count));
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -123,7 +123,7 @@ class AK_Stripe_Payment_Functions {
     public function AK_DeletePlan($plan_id) {
         try {
             $this->AK_setStripeApi();
-            $plan = Stripe_Plan::retrieve("$plan_id");
+            $plan = \Stripe\Plan::retrieve("$plan_id");
             return $plan->delete();
         } catch (Exception $e) {
             return $e->getMessage();

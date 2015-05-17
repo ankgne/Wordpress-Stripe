@@ -21,7 +21,7 @@ jQuery(document).ready(function($) {
 		$('#stripe-submit').attr("disabled", "disabled");
  
 		// send the card details to Stripe
-		Stripe.createToken({
+		Stripe.card.createToken({
 			number: $('.card-number').val(),
 			cvc: $('.card-cvc').val(),
 			exp_month: $('.card-expiry-month').val(),
