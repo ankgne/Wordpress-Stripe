@@ -20,8 +20,8 @@ if (!defined('STRIPE_BASE_URL')) {
 if (!defined('STRIPE_BASE_DIR')) {
     define('STRIPE_BASE_DIR', dirname(__FILE__));
 }
-include_once STRIPE_BASE_DIR . '/includes/classes/settings/AK_Stripe_DB_Functions.php';
-register_activation_hook(__FILE__, array('AK_Stripe_DB_Functions', 'ak_create_stripe_plan_db'));
+include_once STRIPE_BASE_DIR . '/includes/classes/common/AK_Stripe_DB_Functions.php';
+register_activation_hook(__FILE__, array('AK_Stripe_DB_Functions', 'ak_create_stripe_db_tables'));
 register_uninstall_hook(__FILE__, array('AK_Stripe_DB_Functions', 'ak_stripe_uninstall'));
 
 
@@ -29,9 +29,9 @@ $stripe_options = get_option('stripe_settings'); // get the options being used p
 
 if (is_admin()) { // if user is admin
     // load admin includes
-    include(STRIPE_BASE_DIR . '/includes/classes/settings/AK_Stripe_Settings_Page.php');
+    require_once(STRIPE_BASE_DIR . '/includes/classes/settings/AK_Stripe_Settings_Page.php');
     $ak_stripe_settings_page = new AK_Stripe_Settings_Page();
 } else {
     //echo STRIPE_BASE_DIR;
-    include(STRIPE_BASE_DIR . '/includes/classes/frontend/AK_Stripe_Frontend.php');
+    require_once(STRIPE_BASE_DIR . '/includes/classes/frontend/AK_Stripe_Frontend.php');
 }

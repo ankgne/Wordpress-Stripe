@@ -1,34 +1,83 @@
 Stripe.setPublishableKey(stripe_vars.publishable_key);
 function stripeResponseHandler(status, response) {
     if (response.error) {
-		// show errors returned by Stripe
+        // show errors returned by Stripe
         jQuery(".payment-errors").html(response.error.message);
-		// re-enable the submit button
-		jQuery('#stripe-submit').attr("disabled", false);
+        // re-enable the submit button
+        jQuery('#ak-stripe-submit-payment').attr("disabled", false);
     } else {
-        var form$ = jQuery("#stripe-payment-form");
+        var form$ = jQuery("#ak-stripe-payment-form");
         // token contains id, last4, and card type
         var token = response['id'];
+
         // insert the token into the form so it gets submitted to the server
         form$.append("<input type='hidden' name='stripeToken' value='" + token + "'/>");
         // and submit
         form$.get(0).submit();
     }
 }
-jQuery(document).ready(function($) {
-	$("#stripe-payment-form").submit(function(event) {
-		// disable the submit button to prevent repeated clicks
-		$('#stripe-submit').attr("disabled", "disabled");
- 
-		// send the card details to Stripe
-		Stripe.card.createToken({
-			number: $('.card-number').val(),
-			cvc: $('.card-cvc').val(),
-			exp_month: $('.card-expiry-month').val(),
-			exp_year: $('.card-expiry-year').val()
-		}, stripeResponseHandler);
- 
-		// prevent the form from submitting with the default action
-		return false;
-	});
+jQuery(document).ready(function ($) {
+    $('.cc-number').payment('formatCardNumber');
+    $('.cc-exp').payment('formatCardExpiry');
+    $('.cc-cvc').payment('formatCardCVC');
+
+    $.fn.toggleInputError = function (erred) {
+        this.parent('.form-group').toggleClass('has-error', erred);
+        return this;
+    };
+
+    function validateEmail(email) {
+        var emailReg = new RegExp(/^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i);
+        var valid = emailReg.test(email);
+        if (!valid) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    function ValidateName(name) {
+        var valid = /^[A-Za-z\s]+$/.test(name);
+        if (!valid) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    $("#ak-stripe-payment-form").submit(function (event) {
+        
+        var split = ($('.cc-exp').val()).split('/');
+        var cc_month=parseInt(split[0]);
+        var cc_year=parseInt(split[1]);
+        var cardType = $.payment.cardType($('.cc-number').val());
+        $('.cc-number').toggleInputError(!$.payment.validateCardNumber($('.cc-number').val()));
+        $('.cc-exp').toggleInputError(!$.payment.validateCardExpiry($('.cc-exp').payment('cardExpiryVal')));
+        $('.cc-cvc').toggleInputError(!$.payment.validateCardCVC($('.cc-cvc').val(), cardType));
+        $('.cc-brand').text(cardType);
+        $('.card-email').toggleInputError(!validateEmail($('.card-email').val()));
+        $('.card-name').toggleInputError(!ValidateName($('.card-name').val()));
+        $('.validation').removeClass('text-danger text-success');
+        $('.validation').addClass($('.has-error').length ? 'text-danger' : 'text-success');
+        // disable the submit button to prevent repeated clicks
+        $('#ak-stripe-submit-payment').attr("disabled", "disabled");
+
+        if($("#ak-stripe-payment-form input:not(.has-error)"))    {
+            alert("test");
+                    Stripe.card.createToken({
+            number: $('.card-number').val(),
+            cvc: $('.card-cvc').val(),
+            exp_month: cc_month,
+            exp_year: cc_year
+        }, stripeResponseHandler);
+        return false;
+        }
+        else{
+            return false;
+        }
+        
+    });
+
+
+
 });

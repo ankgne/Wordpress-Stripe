@@ -80,7 +80,7 @@ jQuery(document).ready(function($)
             'datastring':plan_ids
         };
         $.post(ajaxurl, data, function(response) {
-            if (response=="success"){
+            if ("success"===response){
                 var success_message = "";
                 $.each(plan_ids, function(index, value ) {
                 success_message=success_message + "<p><strong></strong></p>Successfully deleted plan ID - " + value + "<p><strong></strong></p>"
@@ -92,7 +92,7 @@ jQuery(document).ready(function($)
                 fetch_stripe_plans();
             }
             else {
-                var error_message = "";
+                var error_message = response;
                 $.each(plan_ids, function(index,value ) {
                 error_message=error_message + "<p><strong></strong></p>Failed to delete plan ID - " + value + "<p><strong></strong></p>"
                 
@@ -127,6 +127,39 @@ jQuery(document).ready(function($)
         return false;
     }
     
+    
+    jQuery("#ak-stripe-submit-payment_2").click( function() {
+        alert("hell0");
+         $("#ak-stripe-process-payment-success").hide();//hide by default 
+         $("#ak-stripe-process-payment-failure").hide();//hide by default 
+         $('#ak-stripe-process-payment-success').html('<img id="loader-img" alt="" src="http://adrian-design.com/images/loading.gif" width="100" height="100" align="center" />');
+        create_form_elements = $("#ak-stripe-payment-form").serialize();
+        alert (create_form_elements);
+        
+        var data = {
+            'action': 'ak_stripe_submit_payment',
+            'post_id': 1,
+            'datastring':create_form_elements
+        };
+
+        $("#loaderImg_create_plan").show();
+
+        $.post(ajaxurl, data, function(response) {
+            $("#loaderImg_create_plan").hide();
+            $('#ak-stripe-create-plan-form')[0].reset(); /*clear all the fields of create plan form*/
+            if (response=="success"){
+                $("#stripe-create-plan-success").html("<p><strong></strong></p>New Plan successfully created<p><strong></strong></p>");
+                $("#stripe-create-plan-success").show();
+                fetch_stripe_plans();
+            }
+            else {
+                $("#stripe-create-plan-failure").html('<p><strong></strong></p>' + response + '<p><strong></strong></p>');
+                $("#stripe-create-plan-failure").show();   
+            }
+        });
+    
+    return false;
+    });    
 });
 
 

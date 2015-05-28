@@ -10,8 +10,8 @@
  *
  * @author com
  */
-require_once(STRIPE_BASE_DIR . '/includes/classes/settings/AK_Stripe_DB_Functions.php');
-require_once(STRIPE_BASE_DIR . '/includes/classes/frontend/AK_Stripe_Payment_Functions.php');
+require_once(STRIPE_BASE_DIR . '/includes/classes/common/AK_Stripe_DB_Functions.php');
+require_once(STRIPE_BASE_DIR . '/includes/classes/common/AK_Stripe_Wrapper.php');
 
 class AK_Stripe_Manage_Plans {
 
@@ -114,7 +114,7 @@ RunClub Silver Plan. ", 'ank_stripe'); ?></label>
                 $post = get_post($_POST['post_id']);
                 parse_str($_POST['datastring']); // parse query string
                 $form_data = array($planID, $planname, $planamount, $interval, $trailperiod, $stmtdesc);
-                $ak_create_plan = new AK_Stripe_Payment_Functions();
+                $ak_create_plan = new AK_Stripe_Wrapper();
                 $create_plan_return_code = $ak_create_plan->AK_CreatePlan($form_data);
                 if ($create_plan_return_code[0] == "success") {
                     $form_data[] = $create_plan_return_code[1]->created; // insert plan createtime in array
@@ -133,19 +133,20 @@ RunClub Silver Plan. ", 'ank_stripe'); ?></label>
 
         public function ajax_delete_stripe_plan() {
             if (!empty($_POST['datastring'])) {
-                $ak_delete_plan = new AK_Stripe_Payment_Functions();
+                $ak_delete_plan = new AK_Stripe_Wrapper();
                 $ak_stripe_delete_plan_db = new AK_Stripe_DB_Functions();
                 foreach ($_POST['datastring'] as $plan_id) {
-                    if ($ak_stripe_delete_plan_db->ak_stripe_delete_plan_db($plan_id)) {
-                        $result = $ak_delete_plan->AK_DeletePlan($plan_id);
-                        if ($result->deleted) { //successful plan deletion returns 1
-                            echo "success";
-                        } else {
-                            echo "failed";
+                    $result = $ak_delete_plan->AK_DeletePlan($plan_id); // first try to deleted from Stripe API
+                    if ($result->deleted){
+                        if ($ak_stripe_delete_plan_db->ak_stripe_delete_plan_db($plan_id)){ //then delete from local
+                             echo "success";
+                        }
+                        else{
+                            echo $result;
                         }
                     }
                     else{
-                         echo "failed";
+                         echo $result;
                     }
                 }
                 //print_r (explode("&",$_POST['datastring']));
@@ -185,7 +186,7 @@ RunClub Silver Plan. ", 'ank_stripe'); ?></label>
                     </tfoot>
                     <tbody>
                         <?php
-                        //$ak_list_plan = new AK_Stripe_Payment_Functions();
+                        //$ak_list_plan = new AK_Stripe_Wrapper();
                         //$plan_list=$ak_list_plan->AK_ListAllPlan();
                         $ak_list_plan = new AK_Stripe_DB_Functions();
                         $plan_list = $ak_list_plan->ak_retrieve_stripe_plan_db();
