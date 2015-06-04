@@ -25,11 +25,13 @@ class AK_Stripe_Frontend {
     function __construct() {
         $ak_stripe_scripts = new AK_Stripe_Scripts();
         $ak_stripe_payment_form = new AK_Stripe_Payment_Form();
-        //$this->ak_stripe_process_payment = new AK_stripe_process_payment();
-        //add_action('wp_ajax_ak_stripe_submit_payment', array($this->ak_stripe_process_payment, 'ajax_ak_stripe_submit_payment'));
+        $this->ak_stripe_process_payment = new AK_stripe_process_payment();
+        add_action('wp_ajax_nopriv_ak_stripe_submit_payment', array($this->ak_stripe_process_payment, 'ajax_ak_stripe_submit_payment'));
         global $ak_stripe_payment_form;
 //        global $ak_stripe_process_payment;
     }
+    
+
 
 }
 
