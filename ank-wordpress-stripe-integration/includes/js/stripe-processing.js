@@ -13,7 +13,35 @@ function stripeResponseHandler(status, response) {
         // insert the token into the form so it gets submitted to the server
         form$.append("<input type='hidden' name='stripeToken' value='" + token + "'/>");
         // and submit
-        form$.get(0).submit();
+        //form$.get(0).submit();
+        ak_payment_form_elements = form$.serialize();
+        alert("test");
+        var data = {
+            'action': 'ak_stripe_submit_payment',
+            'post_id': 1,
+            'datastring':ak_payment_form_elements
+        };
+        
+        
+         $.post(stripe_vars.ajaxurl, data, function(response) {
+             alert(response);
+            if (response[0]==="success"){
+                $("#stripe-create-plan-success").html("<p><strong></strong></p>New Plan successfully created<p><strong></strong></p>");
+                $("#stripe-create-plan-success").show();
+                
+                //fetch_stripe_plans();
+            }
+            else {
+                $("#stripe-create-plan-failure").html('<p><strong></strong></p>' + response + '<p><strong></strong></p>');
+                $("#stripe-create-plan-failure").show();   
+            }
+
+
+        });
+    
+    return false;
+        
+        
     }
 }
 jQuery(document).ready(function ($) {
@@ -46,10 +74,10 @@ jQuery(document).ready(function ($) {
     }
 
     $("#ak-stripe-payment-form").submit(function (event) {
-        
+
         var split = ($('.cc-exp').val()).split('/');
-        var cc_month=parseInt(split[0]);
-        var cc_year=parseInt(split[1]);
+        var cc_month = parseInt(split[0]);
+        var cc_year = parseInt(split[1]);
         var cardType = $.payment.cardType($('.cc-number').val());
         $('.cc-number').toggleInputError(!$.payment.validateCardNumber($('.cc-number').val()));
         $('.cc-exp').toggleInputError(!$.payment.validateCardExpiry($('.cc-exp').payment('cardExpiryVal')));
@@ -60,22 +88,20 @@ jQuery(document).ready(function ($) {
         $('.validation').removeClass('text-danger text-success');
         $('.validation').addClass($('.has-error').length ? 'text-danger' : 'text-success');
         // disable the submit button to prevent repeated clicks
-        $('#ak-stripe-submit-payment').attr("disabled", "disabled");
+        //$('#ak-stripe-submit-payment').attr("disabled", "disabled");
 
-        if($("#ak-stripe-payment-form input:not(.has-error)"))    {
-            alert("test");
-                    Stripe.card.createToken({
-            number: $('.card-number').val(),
-            cvc: $('.card-cvc').val(),
-            exp_month: cc_month,
-            exp_year: cc_year
-        }, stripeResponseHandler);
-        return false;
-        }
-        else{
+        if ($("#ak-stripe-payment-form p").hasClass('has-error')) { // in case of any validation error do not submit the form
             return false;
         }
-        
+        else {
+            Stripe.card.createToken({
+                number: $('.card-number').val(),
+                cvc: $('.card-cvc').val(),
+                exp_month: cc_month,
+                exp_year: cc_year
+            }, stripeResponseHandler);
+        }
+
     });
 
 

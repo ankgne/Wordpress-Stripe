@@ -65,9 +65,14 @@ class AK_Stripe_Wrapper {
                         'metadata' => array("customer name" => $customer_detail[0], "email_address" => $customer_detail[1])
                             )
             );
-            return $ak_create_payment_return_code = array("success", $charge);
+            //$redirect = add_query_arg(array('payment' => 'paid', 'ID' => $charge['id']), $_POST['redirect']);
+            $ak_create_payment_return_code = array("success", $charge);
         } catch (Exception $e) {
-            return $ak_create_payment_return_code = array("fail",$e->getMessage());;
+            //$body = $e->getJsonBody();
+            //$err  = $body['error'];
+            // redirect on failed payment
+            //$redirect = add_query_arg(array('payment' => 'failed', 'error_message' => $err['message']), $_POST['redirect'])
+            return $ak_create_payment_return_code = array($e->getMessage());;
         }
         // redirect back to our previous page with the added query variable
         //wp_redirect($redirect);

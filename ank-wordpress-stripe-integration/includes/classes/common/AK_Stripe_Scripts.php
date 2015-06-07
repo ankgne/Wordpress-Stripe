@@ -30,7 +30,7 @@ class AK_Stripe_Scripts {
  
 	wp_enqueue_script('jquery');
 	wp_enqueue_script('stripe', 'https://js.stripe.com/v2/');
-	wp_enqueue_script('stripe-processing', STRIPE_BASE_URL . 'includes/js/AK-stripe-processing.js');
+	wp_enqueue_script('stripe-processing', STRIPE_BASE_URL . 'includes/js/stripe-processing.js');
         wp_enqueue_script('ak-stripe-payment', STRIPE_BASE_URL . 'includes/js/jquery.payment.js',array( 'jquery' ));
 	wp_localize_script('stripe-processing', 'stripe_vars', array(
 			'publishable_key' => $publishable,

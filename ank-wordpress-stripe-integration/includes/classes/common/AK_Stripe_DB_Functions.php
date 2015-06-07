@@ -17,16 +17,13 @@ class AK_Stripe_DB_Functions {
 
     private static $plans_table_name = "ak_stripe_plans";
     private static $customer_table_name = "ak_stripe_customer";
-    private static $payment_table_name = "ak_stripe_payment";
 
-    private static function ak_stripe_table_name($table_name) {
+    public static function ak_stripe_table_name($table_name) {
         global $wpdb;
         if ("customer" === $table_name) {
             return $wpdb->prefix . self::$customer_table_name;
         } else if ("plan" === $table_name) {
             return $wpdb->prefix . self::$plans_table_name;
-        } else if ("payment" === $table_name) {
-            return $wpdb->prefix . self::$payment_table_name;
         } else {
             return false;
         }
@@ -39,7 +36,6 @@ class AK_Stripe_DB_Functions {
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');  // WP does not automcatically include this file so manually include this file to use dbDelta
         $plans_table_name = self::ak_stripe_table_name("plan");
         $customer_table_name = self::ak_stripe_table_name("customer");
-        $payment_table_name = self::ak_stripe_table_name("payment");
 
 
         $ak_stripe_customer_query = "CREATE TABLE $customer_table_name (
@@ -51,7 +47,7 @@ class AK_Stripe_DB_Functions {
          UNIQUE KEY id (id)
          );";
 
-        dbDelta($ak_stripe_customer_query);
+        var_dump(dbDelta($ak_stripe_customer_query));
 
         $ak_stripe_plans_query = "CREATE TABLE  $plans_table_name(
          id INT NOT NULL AUTO_INCREMENT,
@@ -67,20 +63,6 @@ class AK_Stripe_DB_Functions {
          );";
 
         dbDelta($ak_stripe_plans_query);
-
-        $ak_stripe_payment_query = "CREATE TABLE  $payment_table_name(
-         id INT NOT NULL AUTO_INCREMENT,
-         customer_name VARCHAR(128)NOT NULL,
-         customer_email_address VARCHAR(128)NOT NULL,
-         transaction_id VARCHAR(128)NOT NULL, /*balance_transaction*/
-         currency VARCHAR(5) NOT NULL,
-         amount INT NOT NULL,
-         livemode VARCHAR(12),
-         create_time INT,
-         UNIQUE KEY id (id)
-         );";
-
-        dbDelta($ak_stripe_payment_query);
     }
 
     /* drop database table and options being used by this plugin */
@@ -177,39 +159,6 @@ class AK_Stripe_DB_Functions {
     function ak_stripe_retrieve_customer_data() {
         global $wpdb;
         $customer_table_name = self::ak_stripe_table_name("customer");
-
-        $customer = $wpdb->get_results('SELECT * FROM ' . $customer_table_name . ' ORDER BY create_time DESC');
-        return $customer;
-    }
-
-// Payment table functions
-
-    /* Inserts Stripe payment data in local db */
-    function ak_stripe_insert_payment_data(array $payment_data) {
-        global $wpdb;
-
-        $ak_payment_table_name = self::ak_stripe_table_name("payment");
-        try {
-            $wpdb->insert($ak_payment_table_name, array(
-                'customer_name' => $payment_data[0],
-                'customer_email_address' => $payment_data[1],
-                'transaction_id' => $payment_data[4],
-                'currency' => $payment_data[3],
-                'amount' => $payment_data[2],
-                'livemode' => $payment_data[5],
-                'create_time' => $payment_data[6],
-                
-            ));
-        } Catch (Exception $e) {
-            return $e->getMessage(); // TODO
-        }
-    }
-
-    /* Retrieves Stripe payment data from local db */
-
-    function ak_stripe_retrieve_payment_data() {
-        global $wpdb;
-        $customer_table_name = self::ak_stripe_table_name("payment");
 
         $customer = $wpdb->get_results('SELECT * FROM ' . $customer_table_name . ' ORDER BY create_time DESC');
         return $customer;

@@ -30,8 +30,6 @@ class AK_Stripe_Frontend {
         global $ak_stripe_payment_form;
 //        global $ak_stripe_process_payment;
     }
-    
-
 
 }
 
