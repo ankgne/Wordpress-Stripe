@@ -15,7 +15,7 @@ function stripeResponseHandler(status, response) {
 
         // insert the token into the form so it gets submitted to the server
         form$.append("<input type='hidden' name='stripeToken' value='" + token + "'/>");
-        jQuery('#ak-stripe-submit-payment').attr("disabled", false);        
+        jQuery('#ak-stripe-submit-payment').attr("disabled", false);
         ak_payment_form_elements = form$.serialize();
         var data = {
             'action': 'ak_stripe_submit_payment',
@@ -25,6 +25,7 @@ function stripeResponseHandler(status, response) {
         $.post(stripe_vars.ajaxurl, data, function (response) {
             $("#ak-loaderImg_process-payment").hide();
             $("#ak-stripe-payment-form").hide();
+            $(".ak-stripe-payment-form").hide();
             if (response[0] === "success") {
                 $("#ak-stripe-process-payment-success").html("<p><strong></strong></p>Thank you for your payment. Your payment transaction id is <strong>" + response[1] + "</strong></p>");
             }
@@ -64,7 +65,12 @@ jQuery(document).ready(function ($) {
         }
     }
 
-    $("#ak-stripe-payment-form").submit(function (event) {
+    $("#ak-stripe-cancel-payment").click(function () {
+        $('#ak-stripe-payment-form').trigger("reset");
+        return false;
+    });
+
+    $("#ak-stripe-submit-payment").click(function () {
         $("#ak-loaderImg_process-payment").show();
         var split = ($('.cc-exp').val()).split('/');
         var cc_month = parseInt(split[0]);
@@ -81,7 +87,8 @@ jQuery(document).ready(function ($) {
         // disable the submit button to prevent repeated clicks
         //$('#ak-stripe-submit-payment').attr("disabled", "disabled");
 
-        if ($("#ak-stripe-payment-form p").hasClass('has-error')) { // in case of any validation error do not submit the form
+        if ($("#ak-stripe-payment-form div").hasClass('has-error')) { // in case of any validation error do not submit the form
+            $("#ak-loaderImg_process-payment").hide();
             return false;
         }
         else {
@@ -95,4 +102,6 @@ jQuery(document).ready(function ($) {
         }
 
     });
+
+
 });

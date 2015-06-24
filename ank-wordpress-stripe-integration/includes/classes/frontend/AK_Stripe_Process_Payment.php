@@ -20,42 +20,37 @@ class AK_Stripe_Process_Payment {
         require_once(ABSPATH . 'wp-includes/pluggable.php');
     }
 
-    function AK_stripe_listener() { ///create listenser to process payments
-        //add_action('init', array($this, 'AK_stripe_process_payment'));
-    }
-
     function setChargeObject($charge) {
         self::$charge_object = $charge;
         //print_r ($this->charge_object);
     }
 
     function getChargeObject() {
-
-        //print_r ($this->charge_object);
         return self::$charge_object;
     }
 
     function ajax_ak_stripe_submit_payment() {
         if (!empty($_POST['post_id'])) {
-        parse_str($_POST['ak_payment_form_elements'],$payment_form_data); // parse query string
-        //$form_data = array($customername, $emailadress, $action, $redirect, $stripenounce, $stripe_token);
-        $customer_detail = array($payment_form_data['customername'], $payment_form_data['emailadress']);
-        $ak_stripe_payment_function = new AK_Stripe_Wrapper();
-        $ak_stripe_payment_function->setToken($payment_form_data['stripeToken']);
-        $ak_stripe_create_charge_return=$ak_stripe_payment_function->AK_CreateCharge($customer_detail);
-        echo $ak_stripe_create_charge_return;
+            parse_str($_POST['datastring'], $payment_form_data); // parse query string
+            //$payment_form_data = array($customername, $emailadress, $stripenounce, $stripe_token);
+            $payment_detail = array($payment_form_data['customername'], $payment_form_data['emailadress']);
+            $ak_stripe_payment_function = new AK_Stripe_Wrapper();
+            $ak_stripe_payment_function->setToken($payment_form_data['stripeToken']);
+            $ak_stripe_create_charge_return = $ak_stripe_payment_function->AK_CreateCharge($payment_detail);
+            if ($ak_stripe_create_charge_return[0] == "success") {
+                $payment_detail[] = $ak_stripe_create_charge_return[1]['amount']; // insert amount in array
+                $payment_detail[] = $ak_stripe_create_charge_return[1]['currency']; // insert current in array
+                $payment_detail[] = $ak_stripe_create_charge_return[1]['balance_transaction']; // insert transaction ID in array
+                $payment_detail[] = $ak_stripe_create_charge_return[1]['livemode']; // insert mode of api in array
+                $payment_detail[] = $ak_stripe_create_charge_return[1]['created']; // payment time
+                $ak_insert_stripe_payment_data = new AK_Stripe_DB_Functions();
+                $ak_insert_stripe_payment_data->ak_stripe_insert_payment_data($payment_detail);
+                $ak_stripe_create_charge_return=array("success",$ak_stripe_create_charge_return[1]['balance_transaction']);
+            }
+            //echo $ak_stripe_create_charge_return;
+            wp_send_json($ak_stripe_create_charge_return);
         }
         die();
     }
 
-//    function ajax_ak_stripe_submit_payment() {
-//    function AK_stripe_process_payment() {
-//        if (isset($_POST['action']) && $_POST['action'] == 'stripe' && wp_verify_nonce($_POST['stripe_nonce'], 'stripe-nonce')) {
-//            $customer_detail = array($_POST['customername'], $_POST['emailadress']);
-//            $ak_stripe_payment_function = new AK_Stripe_Wrapper();
-//            $ak_stripe_payment_function->setToken($_POST['stripeToken']);
-//            $ak_stripe_payment_function->AK_CreateCharge($customer_detail);
-//        }
-//    }
-//
 }
