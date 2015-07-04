@@ -10,9 +10,6 @@
  *
  * @author com
  */
-require_once(STRIPE_BASE_DIR . '/includes/classes/common/AK_Stripe_DB_Functions.php');
-require_once(STRIPE_BASE_DIR . '/includes/classes/common/AK_Stripe_Wrapper.php');
-
 class AK_Stripe_Manage_Plans {
 
     public function ak_stripe_render_manage_plans_page() {

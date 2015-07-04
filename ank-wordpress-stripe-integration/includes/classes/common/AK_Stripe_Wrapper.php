@@ -20,7 +20,7 @@ class AK_Stripe_Wrapper {
     private $token;
 
     public function __construct() { // set the values of secret keys on instantiation
-        global $stripe_options;
+        $stripe_options = WC()->stripe_options;
         if (isset($stripe_options['test_mode']) && $stripe_options['test_mode']) {
             $this->setSecret_key($stripe_options['test_secret_key']);
         } else {
@@ -59,8 +59,8 @@ class AK_Stripe_Wrapper {
         try {
             $this->AK_setStripeApi();
             $charge = \Stripe\Charge::create(array(
-                        'amount' => 1000, // $10
-                        'currency' => 'usd',
+                        'amount' => 1000, // $10 TODO
+                        'currency' => 'usd', //TODO
                         'source' => $this->getToken(),
                         'metadata' => array("customer name" => $customer_detail[0], "email_address" => $customer_detail[1])
                             )

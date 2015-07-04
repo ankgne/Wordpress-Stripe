@@ -12,36 +12,52 @@
  */
 class AK_Stripe_Payment_Form {
 
+    private $ak_stripe_scripts = '';
+
     //put your code here
     function __construct() {
         //handle shortcode
+        $this->ak_stripe_scripts = new AK_Stripe_Scripts();
         add_shortcode('ak_stripe_payment_form', array($this, 'AK_stripe_payment_shortcode'));
     }
 
     public function AK_stripe_payment_shortcode($atts) {
-        $atts = shortcode_atts(
-                array(
-            'type' => '',
-                ), $atts, 'ak_stripe_payment_form');
+        $atts = shortcode_atts(array('type' => '', 'id' => '', 'title' => ''), $atts, 'ak_stripe_payment_form');
         if ("page" === $atts['type']) {
             $this->AK_stripe_payment_form_page();
         } else if ("pop-up" === $atts['type']) {
-            $this->AK_stripe_payment_form_popup();
+            $this->AK_stripe_payment_form_popup_iframe();
         } else {
-            $this->AK_stripe_payment_form_page();
+            $this->AK_stripe_payment_form_popup($atts['id']);
         }
     }
 
-    public function AK_stripe_payment_form_popup() {
+    //Function for displaying payment form as pop-up in iFrame
+    public function AK_stripe_payment_form_popup_iframe() {
         //add_thickbox();
-        $ak_stripe_load_popup_scripts = new AK_Stripe_Scripts();
-        $ak_stripe_load_popup_scripts->ak_stripe_load_thickbox_popup_script();
+        $this->ak_stripe_scripts->ak_stripe_load_thickbox_popup_script();
         $ak_stripe_popup_url = add_query_arg(array('ak-stripe-pop-up' => 'true', 'TB_iframe' => 'true', 'height' => 480, 'width' => 320), home_url());
-        echo '<a class="thickbox btn-info ak-stripe-pop-up-button" id="ak-stripe-pop-up-button" title="' . esc_attr($options['stripe_header']) . '" href="' . esc_url($ak_stripe_popup_url) . '"><span>test' . esc_html($options['stripe_header']) . '</span></a>' . $payments;
+        //echo '<a class="thickbox btn-info ak-stripe-pop-up-button" id="ak-stripe-pop-up-button" title="' . esc_attr($options['stripe_header']) . '" href="' . esc_url($ak_stripe_popup_url) . '"><span>test' . esc_html($options['stripe_header']) . '</span></a>' . $payments;
+        echo '<a class="thickbox btn-info ak-stripe-pop-up-button" id="ak-stripe-pop-up-button" href="' . esc_url($ak_stripe_popup_url) . '"><span>test</span></a>';
+        add_filter('query_vars', array($this, 'ak_stripe_popup_add_var'));
+        add_action('template_redirect', array($this, 'ak_stripe_popup_load_iframe'));
+    }
+
+    function ak_stripe_popup_add_var($vars) {
+        $vars[] = 'ak-stripe-pop-up';
+        return $vars;
+    }
+
+    function ak_stripe_popup_load_iframe() {
+        if (get_query_var('ak-stripe-pop-up')) {
+            require_once( STRIPE_BASE_DIR . '/includes/classes/frontend/AK_Stripe_Pop_Up.php' );
+            exit;
+        }
     }
 
     //Function for displaying the payment form on page
     public function AK_stripe_payment_form_page() {
+        $this->ak_stripe_scripts->ak_stripe_load_payment_processing_scripts("page-form", "");
         ?>
 
         <div class='form-row'>
@@ -113,4 +129,39 @@ class AK_Stripe_Payment_Form {
         <?php
     }
 
+    function AK_stripe_payment_form_popup($form_id) {
+        $this->ak_stripe_scripts->ak_stripe_load_payment_processing_scripts("pop-up", $form_id);
+        ?>
+        <form method="POST" action="" class="sc-checkout-form" id="ak_stripe_checkout_form_<?php echo $form_id; ?>">
+            <input type="hidden" name="ak-stripe-checkout-name" value="<?php echo get_post_meta($form_id, 'ak-stripe-form-name', true); ?>">
+            <input type="hidden" name="ak-stripe-checkout-description" value="<?php echo get_post_meta($form_id, 'ak-stripe-form-description', true); ?>">
+            <input type="hidden" name="ak-stripe-checkout-amount" value="<?php echo get_post_meta($form_id, 'ak-stripe-payment-amount', true); ?>">
+            <input type="hidden" name="ak-stripe-checkout-include-amount" value="<?php echo get_post_meta($form_id, 'ak-stripe-include-amount', true); ?>">            
+            <input type="hidden" name="ak-stripe-checkout-include-billing-address" value="<?php echo get_post_meta($form_id, 'ak-stripe-include-billing-address', true); ?>">
+            <input type="hidden" name="ak-stripe-checkout-include-shipping-address" value="<?php echo get_post_meta($form_id, 'ak-stripe-include-shipping-address', true); ?>">
+                <input type="hidden" name="ak-stripe-checkout-payment-button" value="<?php echo get_post_meta($form_id, 'ak-stripe-payment-button', true); ?>"> 
+                <input type="hidden" name="ak-stripe-checkout-form" value="<?php echo $form_id; ?>"> 
+                <input type="hidden" name="ak_stripe_ajax_nonce" value="<?php echo wp_create_nonce("ak-stripe-pop-up-ajax-nonce"); ?>"> 
+            <button class="ak-stripe-pop-up-button submit-button" id='AKStripeButton-<?php echo $form_id; ?>'><span><?php echo get_post_meta($form_id, 'ak-stripe-payment-button', true); ?></span></button>
+        </form>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <button class='ak-stripe-pop-up-button submit-button' id='AKStripeButton'>Pay with Card</button>
+        <?php
+    }
+
 }
+?>

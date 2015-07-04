@@ -161,58 +161,66 @@ jQuery(document).ready(function ($)
         return false;
     });
 
+    $('.post-type-ak_stripe_checkout #titlediv').hide(); //hide form name title by default
+
     $('input#ak-stripe-form-name').change(function () {
-        ak_stripe_checkout_add_short_code();
+        ak_stripe_checkout_add_short_code_and_title();
     });
-    
+
     $('input#ak-stripe-payment-amount').change(function () {
         ak_stripe_checkout_convert_payment_amount();
     });
 
-    function ak_stripe_checkout_add_short_code() {
+    function ak_stripe_checkout_add_short_code_and_title() {
         var title = $('input#ak-stripe-form-name').val();
+        $('.post-type-ak_stripe_checkout #title').val(title);
 
-        if (title){
+        if (title) {
             title = title.replace(/["'\[\]]/g, ''); ///prevents [] from name
         }
 
         $('input#ak-stripe-form-name').val(title);
         var postId = $('input#ak_stripe_post_ID').val();
-        var tag = '[stripe-checkout-form id=' + postId + ' title=' + title + ']';
+        var tag = '[ak_stripe_payment_form id=' + postId + ' title=' + title + ']';
         $('input#ak-stripe-form-shortcode').val(tag);
 
     }
-    
-        function ak_stripe_checkout_convert_payment_amount() {
+
+    function ak_stripe_checkout_convert_payment_amount() {
         var amount = $('input#ak-stripe-payment-amount').val();
-        amount=(amount/100).toFixed(2);
+        amount = (amount / 100).toFixed(2);
         $('input#ak-stripe-payment-amount').val(amount);
     }
-    
-    
-        if( 'custom_amount'===$('select#ak-stripe-payment-type').val()){
+
+
+
+
+    if ('custom_amount' === $('select#ak-stripe-payment-type').val()) {
         $("input#ak-stripe-payment-amount").val('');//set blank
-       $("input#ak-stripe-payment-amount").prop("readonly", true);
-       $("input#ak-stripe-include-amount").prop("readonly", true);
+        $("input#ak-stripe-payment-amount").prop("readonly", true);
+        $("input#ak-stripe-include-amount").prop("readonly", true);
         $("input#ak-stripe-include-amount").attr('disabled', 'disabled');
     }
-    
-    $('select#ak-stripe-payment-type').change(function() {
-    if( 'custom_amount'===$('select#ak-stripe-payment-type').val()){
-        $("input#ak-stripe-payment-amount").val('');//set blank
-         $("input#ak-stripe-include-amount").val('');
-       $("input#ak-stripe-payment-amount").prop("readonly", true);
-       $("input#ak-stripe-include-amount").prop("readonly", true);
-         $("input#ak-stripe-include-amount").attr('disabled', 'disabled');
-       
-    }
-    else{
-        $("input#ak-stripe-payment-amount").prop("readonly", false);
-        $("input#ak-stripe-include-amount").prop("readonly", false);
-         $("input#ak-stripe-include-amount").removeAttr("disabled");
-    }
 
-});
+    $('select#ak-stripe-payment-type').change(function () {
+        if ('custom_amount' === $('select#ak-stripe-payment-type').val()) { // custom account selected
+            $("input#ak-stripe-payment-amount").val('');//set blank
+            $("#ak-stripe-include-amount").prop('checked', false);
+            $('#ak-stripe-include-amount').removeAttr('checked');
+            $("input#ak-stripe-payment-amount").prop("readonly", true);
+            $("input#ak-stripe-include-amount").prop("readonly", true);
+            $("input#ak-stripe-include-amount").attr('disabled', 'disabled');
+
+
+        }
+        else {
+            $("input#ak-stripe-payment-amount").prop("readonly", false);
+            $("input#ak-stripe-include-amount").prop("readonly", false);
+            $("input#ak-stripe-include-amount").removeAttr("disabled");
+            $("input#ak-stripe-payment-amount").val('1000');
+        }
+
+    });
 
 
 });

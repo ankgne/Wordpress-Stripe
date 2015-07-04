@@ -14,7 +14,6 @@
 include(STRIPE_BASE_DIR . '/includes/classes/settings/AK_Stripe_Setting_Form.php');
 include(STRIPE_BASE_DIR . '/includes/classes/settings/AK_Stripe_Manage_Plans.php');
 include(STRIPE_BASE_DIR . '/includes/classes/settings/AK_Stripe_Payment_Form_Setting.php');
-include(STRIPE_BASE_DIR . '/includes/classes/common/AK_Stripe_Scripts.php');
 
 class AK_Stripe_Settings_Page {
 
