@@ -14,10 +14,15 @@ class AK_Stripe_Setting_Form {
 
     //put your code here
     public function ak_stripe_render_options_page() {
-        global $stripe_options; // extract values in main file
+        $stripe_options = get_option('stripe_settings');
         ?>
         <div class="wrap">
             <h2><?php _e('Stripe Settings', 'ank_stripe'); ?></h2>
+            <?php if (isset($_GET['settings-updated'])) { ?>
+                <div id="message" class="updated ak-stripe-setting-message">
+                    <p><strong><?php _e('Stripe Settings saved.') ?></strong></p>
+                </div>
+            <?php } ?>
             <form method="post" action="options.php">
 
                 <?php settings_fields('stripe_settings_group'); ?>
@@ -29,7 +34,7 @@ class AK_Stripe_Setting_Form {
                                 <?php _e('Test Mode', 'ank_stripe'); ?>
                             </th>
                             <td>
-                                <input id="stripe_settings[test_mode]" name="stripe_settings[test_mode]" type="checkbox" value="1" <?php checked(1, $stripe_options['test_mode']); ?> />
+                                <input id="stripe_settings_test_mode" name="stripe_settings[test_mode]" type="checkbox" value="1" <?php checked(1, isset($stripe_options['test_mode']) ? $stripe_options['test_mode'] : false); ?> />
                                 <label class="description" for="stripe_settings[test_mode]"><?php _e('Check this to use the plugin in test mode.', 'ank_stripe'); ?></label>
                             </td>
                         </tr>
@@ -44,7 +49,7 @@ class AK_Stripe_Setting_Form {
                                 <?php _e('Live Secret', 'ank_stripe'); ?>
                             </th>
                             <td>
-                                <input id="stripe_settings[live_secret_key]" name="stripe_settings[live_secret_key]" type="text" class="regular-text" value="<?php echo $stripe_options['live_secret_key']; ?>"/>
+                                <input id="stripe_settings_live_secret_key" name="stripe_settings[live_secret_key]" type="text" class="regular-text" value="<?php echo $stripe_options['live_secret_key']; ?>"/>
                                 <label class="description" for="stripe_settings[live_secret_key]"><?php _e('Paste your live secret key.', 'ank_stripe'); ?></label>
                             </td>
                         </tr>
@@ -53,7 +58,7 @@ class AK_Stripe_Setting_Form {
                                 <?php _e('Live Publishable', 'ank_stripe'); ?>
                             </th>
                             <td>
-                                <input id="stripe_settings[live_publishable_key]" name="stripe_settings[live_publishable_key]" type="text" class="regular-text" value="<?php echo $stripe_options['live_publishable_key']; ?>"/>
+                                <input id="stripe_settings_live_publishable_key" name="stripe_settings[live_publishable_key]" type="text" class="regular-text" value="<?php echo $stripe_options['live_publishable_key']; ?>"/>
                                 <label class="description" for="stripe_settings[live_publishable_key]"><?php _e('Paste your live publishable key.', 'ank_stripe'); ?></label>
                             </td>
                         </tr>
@@ -62,7 +67,7 @@ class AK_Stripe_Setting_Form {
                                 <?php _e('Test Secret', 'ank_stripe'); ?>
                             </th>
                             <td>
-                                <input id="stripe_settings[test_secret_key]" name="stripe_settings[test_secret_key]" type="text" class="regular-text" value="<?php echo $stripe_options['test_secret_key']; ?>"/>
+                                <input id="stripe_settings_test_secret_key" name="stripe_settings[test_secret_key]" type="text" class="regular-text" value="<?php echo $stripe_options['test_secret_key']; ?>"/>
                                 <label class="description" for="stripe_settings[test_secret_key]"><?php _e('Paste your test secret key.', 'ank_stripe'); ?></label>
                             </td>
                         </tr>
@@ -71,7 +76,7 @@ class AK_Stripe_Setting_Form {
                                 <?php _e('Test Publishable', 'ank_stripe'); ?>
                             </th>
                             <td>
-                                <input id="stripe_settings[test_publishable_key]" name="stripe_settings[test_publishable_key]" class="regular-text" type="text" value="<?php echo $stripe_options['test_publishable_key']; ?>"/>
+                                <input id="stripe_settings_test_publishable_key" name="stripe_settings[test_publishable_key]" class="regular-text" type="text" value="<?php echo $stripe_options['test_publishable_key']; ?>"/>
                                 <label class="description" for="stripe_settings[test_publishable_key]"><?php _e('Paste your test publishable key.', 'ank_stripe'); ?></label>
                             </td>
                         </tr>
@@ -79,7 +84,7 @@ class AK_Stripe_Setting_Form {
                 </table>	
 
                 <p class="submit">
-                    <input type="submit" class="button-primary" value="<?php _e('Save Options', 'mfwp_domain'); ?>" />
+                    <input id="ak-stripe-settings-button" type="submit" class="button-primary" value="<?php _e('Save Options', 'mfwp_domain'); ?>" />
                 </p>
 
             </form>

@@ -19,18 +19,18 @@ class AK_Stripe_Template_Loader {
     }
 
     public static function template_loader($template) {
-        if (isset($_GET['_wpnonce']) && isset($_GET['ak-stripe-payment-status'])) { // request coming from stripe checkout page            
+        if (isset($_GET['_wpnonce']) && isset($_GET['ak-stripe-payment-status'])) { // request coming from stripe checkout page
             $nonce = $_GET['_wpnonce'];
             if (!wp_verify_nonce($nonce, 'ak-stripe-pop-up-ajax-nonce'))
                 die("Security check");
             $ak_stripe_scripts = new AK_Stripe_Scripts();
             $ak_stripe_scripts->ak_stripe_load_generic_scripts();
             if ('success' === $_GET['ak-stripe-payment-status']) {
-                $template_file_path=ak_stripe_locate_template("AK_Stripe_Thankyou.php");
-                require_once( $template_file_path );
+                $template_file_path = ak_stripe_locate_template("AK_Stripe_Thankyou.php");
             } else {
-                require_once( STRIPE_BASE_DIR . '/includes/classes/frontend/AK_Stripe_Failed.php' );
+                $template_file_path = ak_stripe_locate_template("AK_Stripe_Failed.php");
             }
+            require_once( $template_file_path );
         } else {
             return $template;
         }

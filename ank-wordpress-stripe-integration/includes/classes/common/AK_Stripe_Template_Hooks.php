@@ -6,11 +6,14 @@
  * and open the template in the editor.
  */
 
-/**
- * Description of AK_Stripe_Template_Hooks
- *
- * @author com
- */
-class AK_Stripe_Template_Hooks {
-    //put your code here
-}
+    /*success transaction template*/
+    add_action( 'ak_stripe_success_before_main_content', 'ak_stripe_start_template_wrapper', 10 );
+    add_action( 'ak_stripe_success_after_main_content', 'ak_stripe_end_template_wrapper', 10 );
+    add_action( 'ak_stripe_success_main_content', 'ak_stripe_payment_success_content', 10 );
+    
+    /*failed transaction template*/
+    add_action( 'ak_stripe_fail_before_main_content', 'ak_stripe_fail_start_template_wrapper', 10 );
+    add_action( 'ak_stripe_fail_after_main_content', 'ak_stripe_fail_end_template_wrapper', 10 );
+    add_action( 'ak_stripe_fail_main_content', 'ak_stripe_payment_fail_content', 10 );
+    
+?>

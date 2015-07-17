@@ -135,31 +135,22 @@ class AK_Stripe_Payment_Form {
         <form method="POST" action="" class="sc-checkout-form" id="ak_stripe_checkout_form_<?php echo $form_id; ?>">
             <input type="hidden" name="ak-stripe-checkout-name" value="<?php echo get_post_meta($form_id, 'ak-stripe-form-name', true); ?>">
             <input type="hidden" name="ak-stripe-checkout-description" value="<?php echo get_post_meta($form_id, 'ak-stripe-form-description', true); ?>">
+            <input type="hidden" name="ak-stripe-payment-type" value="<?php echo get_post_meta($form_id, 'ak-stripe-payment-type', true); ?>">
             <input type="hidden" name="ak-stripe-checkout-amount" value="<?php echo get_post_meta($form_id, 'ak-stripe-payment-amount', true); ?>">
             <input type="hidden" name="ak-stripe-checkout-include-amount" value="<?php echo get_post_meta($form_id, 'ak-stripe-include-amount', true); ?>">            
             <input type="hidden" name="ak-stripe-checkout-include-billing-address" value="<?php echo get_post_meta($form_id, 'ak-stripe-include-billing-address', true); ?>">
             <input type="hidden" name="ak-stripe-checkout-include-shipping-address" value="<?php echo get_post_meta($form_id, 'ak-stripe-include-shipping-address', true); ?>">
-                <input type="hidden" name="ak-stripe-checkout-payment-button" value="<?php echo get_post_meta($form_id, 'ak-stripe-payment-button', true); ?>"> 
-                <input type="hidden" name="ak-stripe-checkout-form" value="<?php echo $form_id; ?>"> 
-                <input type="hidden" name="ak_stripe_ajax_nonce" value="<?php echo wp_create_nonce("ak-stripe-pop-up-ajax-nonce"); ?>"> 
-            <button class="ak-stripe-pop-up-button submit-button" id='AKStripeButton-<?php echo $form_id; ?>'><span><?php echo get_post_meta($form_id, 'ak-stripe-payment-button', true); ?></span></button>
+            <input type="hidden" name="ak-stripe-checkout-payment-button" value="<?php echo get_post_meta($form_id, 'ak-stripe-payment-button', true); ?>"> 
+            <input type="hidden" name="ak-stripe-checkout-form" value="<?php echo $form_id; ?>"> 
+            <input type="hidden" name="ak_stripe_ajax_nonce" value="<?php echo wp_create_nonce("ak-stripe-pop-up-ajax-nonce"); ?>"> 
+
+            <?php if("custom_amount" === get_post_meta($form_id, 'ak-stripe-payment-type', true)){?>
+            <div class="col-xs-6 ">
+                <input type="text" id='ak-stripe-custom-amount-<?php echo $form_id; ?>' name="ak-stripe-custom-amount" class="form-control ak-stripe-custom-amount" placeholder="Amount in USD">
+            </div>
+            <?php } ?>
+            <button class="ak-stripe-pop-up-button submit-button btn" id='AKStripeButton-<?php echo $form_id; ?>'><span><?php echo get_post_meta($form_id, 'ak-stripe-payment-button', true); ?></span></button>
         </form>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        <button class='ak-stripe-pop-up-button submit-button' id='AKStripeButton'>Pay with Card</button>
         <?php
     }
 

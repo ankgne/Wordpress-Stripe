@@ -180,14 +180,14 @@ RunClub Silver Plan. ", 'ank_stripe'); ?></label>
                         </tr>
                     </tfoot>
                     <tbody>
-        <?php
-        //$ak_list_plan = new AK_Stripe_Wrapper();
-        //$plan_list=$ak_list_plan->AK_ListAllPlan();
-        $ak_list_plan = new AK_Stripe_DB_Functions();
-        $plan_list = $ak_list_plan->ak_retrieve_stripe_plan_db();
-        if (!empty($plan_list)) :
-            foreach ($plan_list as $row) :
-                ?>
+                        <?php
+                        //$ak_list_plan = new AK_Stripe_Wrapper();
+                        //$plan_list=$ak_list_plan->AK_ListAllPlan();
+                        $ak_list_plan = new AK_Stripe_DB_Functions();
+                        $plan_list = $ak_list_plan->ak_retrieve_stripe_plan_db();
+                        if (!empty($plan_list)) :
+                            foreach ($plan_list as $row) :
+                                ?>
                                 <tr>
                                     <td><?php echo $row->plan_id; ?></td>
                                     <td><?php echo $row->plan_name; ?></td>
@@ -199,16 +199,16 @@ RunClub Silver Plan. ", 'ank_stripe'); ?></label>
                                     <td><?php echo "<input type='checkbox' name='check_list[]' value='$row->plan_id'>"; ?></td>
 
                                 </tr>
-                <?php
-            endforeach;
-        else :
-            ?>
+                                <?php
+                            endforeach;
+                        else :
+                            ?>
                             <tr>
                                 <td colspan="3"><?php _e('No data found', 'ank_stripe'); ?></td>
                             </tr>
-        <?php
-        endif;
-        ?>	
+                        <?php
+                        endif;
+                        ?>	
                     </tbody>
                 </table>
                 <p class="submit">
@@ -217,8 +217,9 @@ RunClub Silver Plan. ", 'ank_stripe'); ?></label>
                 </p>
             </form>
 
-        <?php
-        die();
-    }
+            <?php
+            die();
+        }
 
-}
+    }
+    

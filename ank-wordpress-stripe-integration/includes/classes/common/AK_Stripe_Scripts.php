@@ -28,6 +28,8 @@ class AK_Stripe_Scripts {
         wp_enqueue_script('ak-stripe-payment', STRIPE_BASE_URL . 'includes/js/jquery.payment.js', array('jquery'));
 
         if ("pop-up" === $form_type) { // embedded pop-up
+            wp_enqueue_script('ak-stripe-pop-validate', 'http://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js', array('jquery'));
+            wp_enqueue_script('ak-stripe-pop-validate2', 'http://jqueryvalidation.org/files/dist/additional-methods.min.js', array('jquery'));
             $form_name = get_post_meta($form_id, 'ak-stripe-form-name', true);
             $form_description = get_post_meta($form_id, 'ak-stripe-form-description', true);
             $form_payment_type = get_post_meta($form_id, 'ak-stripe-payment-type', true);

@@ -11,7 +11,6 @@
  *
  * @author com
  */
-//require_once(STRIPE_BASE_DIR . '/includes/classes/common/AK_Stripe_Functions.php');
 class AK_Stripe_Custom_Post_Type {
 
     //put your code here
@@ -128,7 +127,12 @@ class AK_Stripe_Custom_Post_Type {
         // loop through fields and save the data
         foreach ($custom_meta_fields as $field) {
             $old = get_post_meta($post_id, $field['id'], true);
-            $new = $_POST[$field['id']];
+            if (isset($_POST[$field['id']])) {
+                $new = $_POST[$field['id']];
+            } else {
+                $new = '';
+            }
+
             if ($new && $new != $old) {
                 update_post_meta($post_id, $field['id'], $new);
             } elseif ('' == $new && $old) {

@@ -21,6 +21,7 @@ class AK_Stripe_DB_Functions {
 
     private static function ak_stripe_table_name($table_name) {
         global $wpdb;
+         $wpdb->hide_errors();
         if ("customer" === $table_name) {
             return $wpdb->prefix . self::$customer_table_name;
         } else if ("plan" === $table_name) {
@@ -70,13 +71,16 @@ class AK_Stripe_DB_Functions {
 
         $ak_stripe_payment_query = "CREATE TABLE  $payment_table_name(
          id INT NOT NULL AUTO_INCREMENT,
-         customer_name VARCHAR(128)NOT NULL,
+         customer_name VARCHAR(128),
          customer_email_address VARCHAR(128)NOT NULL,
          transaction_id VARCHAR(128)NOT NULL, /*balance_transaction*/
          currency VARCHAR(5) NOT NULL,
          amount INT NOT NULL,
          livemode VARCHAR(12),
          create_time INT,
+         company_name VARCHAR(128),
+         product_description VARCHAR(128),
+         payment_status VARCHAR(128),
          UNIQUE KEY id (id)
          );";
 
@@ -86,14 +90,23 @@ class AK_Stripe_DB_Functions {
     /* drop database table and options being used by this plugin */
 
     function ak_stripe_uninstall() {
+        ak_stripe_log(__METHOD__ . " Start of ak_stripe_uninstall");
         global $wpdb;
         $plans_table_name = self::ak_stripe_table_name("plan");
         $customer_table_name = self::ak_stripe_table_name("customer");
+        $payment_table_name = self::ak_stripe_table_name("payment");
 
+        ak_stripe_log(__METHOD__ . " Dropping  $plans_table_name");
         $wpdb->query("DROP TABLE IF EXISTS $plans_table_name");
+        
+        ak_stripe_log(__METHOD__ . " Dropping  $customer_table_name");
         $wpdb->query("DROP TABLE IF EXISTS $customer_table_name");
+        
+        ak_stripe_log(__METHOD__ . " Dropping  $payment_table_name");
+        $wpdb->query("DROP TABLE IF EXISTS $payment_table_name");
 
         delete_option('stripe_settings');
+        ak_stripe_log(__METHOD__ . " End of ak_stripe_uninstall");
     }
 
     /* Inserts stripe plan details in local db */
@@ -146,6 +159,8 @@ class AK_Stripe_DB_Functions {
         return $plans;
     }
 
+    /* This function is not being used in as of now. For Future use */
+
     function ak_stripe_insert_customer_data(array $customer_data) {
         global $wpdb;
 
@@ -161,6 +176,8 @@ class AK_Stripe_DB_Functions {
         }
     }
 
+    /* This function is not being used in as of now. For Future use */
+
     function ak_stripe_delete_customer_data($customer_id) {
         global $wpdb;
         $customer_table_name = self::ak_stripe_table_name("customer");
@@ -173,6 +190,7 @@ class AK_Stripe_DB_Functions {
     }
 
     /* Retrieves stripe plan details from local db */
+    /* This function is not being used in as of now. For Future use */
 
     function ak_stripe_retrieve_customer_data() {
         global $wpdb;
@@ -186,23 +204,28 @@ class AK_Stripe_DB_Functions {
 
     /* Inserts Stripe payment data in local db */
     function ak_stripe_insert_payment_data(array $payment_data) {
+        ak_stripe_log(__METHOD__ . " Start of ak_stripe_insert_payment_data");
+        ak_stripe_log(__METHOD__ . " ======================================");
         global $wpdb;
 
         $ak_payment_table_name = self::ak_stripe_table_name("payment");
-        try {
-            $wpdb->insert($ak_payment_table_name, array(
-                'customer_name' => $payment_data[0],
-                'customer_email_address' => $payment_data[1],
-                'transaction_id' => $payment_data[4],
-                'currency' => $payment_data[3],
-                'amount' => $payment_data[2],
-                'livemode' => $payment_data[5],
-                'create_time' => $payment_data[6],
-                
-            ));
-        } Catch (Exception $e) {
-            return $e->getMessage(); // TODO
-        }
+        ak_stripe_log(__METHOD__ . " Table name is : " . $ak_payment_table_name);
+        ak_stripe_log($payment_data);
+
+        $wpdb->insert($ak_payment_table_name, array(
+            'customer_name' => $payment_data[0],
+            'customer_email_address' => $payment_data[1],
+            'transaction_id' => $payment_data[4],
+            'currency' => $payment_data[3],
+            'amount' => $payment_data[2],
+            'livemode' => $payment_data[5],
+            'create_time' => $payment_data[6],
+            'company_name' => $payment_data[7],
+            'product_description' => $payment_data[8],
+            'payment_status' => $payment_data[9],
+        ));
+        ak_stripe_log(__METHOD__ . " End of ak_stripe_insert_payment_data");
+        ak_stripe_log(__METHOD__ . " ======================================");
     }
 
     /* Retrieves Stripe payment data from local db */

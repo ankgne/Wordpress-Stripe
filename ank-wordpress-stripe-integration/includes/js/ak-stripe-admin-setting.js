@@ -1,7 +1,7 @@
 jQuery(document).ready(function ($)
 {
     $("#stripe-create-plan-success").hide();//hide by default 
-    $("#stripe-create-plan-failure").hide();//hide by default  
+    $("#stripe-create-plan-failure").hide();//hide by default 
     $("#stripe-retrieve-plan-success").hide();//hide by default  
     $("#stripe-retrieve-plan-failure").hide();//hide by default  
     $("#loaderImg_create_plan").hide();//hide by default 
@@ -129,12 +129,10 @@ jQuery(document).ready(function ($)
 
 
     jQuery("#ak-stripe-submit-payment_2").click(function () {
-        alert("hell0");
         $("#ak-stripe-process-payment-success").hide();//hide by default 
         $("#ak-stripe-process-payment-failure").hide();//hide by default 
         $('#ak-stripe-process-payment-success').html('<img id="loader-img" alt="" src="http://adrian-design.com/images/loading.gif" width="100" height="100" align="center" />');
         create_form_elements = $("#ak-stripe-payment-form").serialize();
-        alert(create_form_elements);
 
         var data = {
             'action': 'ak_stripe_submit_payment',
@@ -187,13 +185,10 @@ jQuery(document).ready(function ($)
     }
 
     function ak_stripe_checkout_convert_payment_amount() {
-        var amount = $('input#ak-stripe-payment-amount').val();
+        var amount = $this.val();
         amount = (amount / 100).toFixed(2);
         $('input#ak-stripe-payment-amount').val(amount);
     }
-
-
-
 
     if ('custom_amount' === $('select#ak-stripe-payment-type').val()) {
         $("input#ak-stripe-payment-amount").val('');//set blank
@@ -221,6 +216,41 @@ jQuery(document).ready(function ($)
         }
 
     });
+
+
+    $("#ak-stripe-settings-button").click(function () {
+        $(".ak-stripe-setting-message").hide();
+        var error_message = "";
+
+        if ($("#stripe_settings_test_mode").is(":checked")) {
+            error_message = ak_stripe_settings_validate_keys("test");
+        } else {
+            error_message = ak_stripe_settings_validate_keys("live");
+        }
+        if ("success" !== error_message) {
+            alert(error_message);
+            return false;
+        }
+    });
+
+    function ak_stripe_settings_validate_keys(type) {
+        if ("test" === type) {
+            if (0 === ($("#stripe_settings_test_secret_key").val().length)) {
+                return "Please enter the test secret Key"
+            }
+            else if (0 === ($("#stripe_settings_test_publishable_key").val().length)) {
+                return "Please enter the test publishable Key";
+            }
+        } else {
+            if (0 === ($("#stripe_settings_live_secret_key").val().length)) {
+                return "Please enter the live secret Key"
+            }
+            else if (0 === ($("#stripe_settings_live_publishable_key").val().length)) {
+                return "Please enter the live publishable Key";
+            }
+        }
+        return "success";
+    }
 
 
 });

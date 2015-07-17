@@ -1,51 +1,13 @@
 Stripe.setPublishableKey(stripe_vars.publishable_key); //receive publishable_key as input arguements
-//var ak_stripe_form_id=stripe_vars.ak_stripe_form_id;
-//var form_name = stripe_vars.form_name;
-//var form_description = stripe_vars.form_description;
-//var form_payment_amount = stripe_vars.form_payment_amount;
-//var form_payment_button_text = stripe_vars.form_payment_button_text;
-//var form_include_amount = stripe_vars.form_include_amount;
-//var form_include_billing_address = stripe_vars.form_include_billing_address;
-//var form_include_shipping_address = stripe_vars.form_include_shipping_address;
-//var ak_stripe_pop_up_nonce=stripe_vars.ak_stripe_ajax_nonce;
 
-var ak_stripe_pop_up_nonce="";
-var pop_up_button_id ="";
-var form_id ="";
-var page_id="";
+var ak_stripe_pop_up_nonce = "";
+var pop_up_button_id = "";
+var form_id = "";
+var page_id = "";
+var form_payment_amount = "";
+var form_description = "";
+var form_name = "";
 
-
-//alert(form_description);
-
-//if (form_include_amount) {
-//    form_include_amount = new Boolean(true);
-//    ;
-//} else {
-//    form_include_amount = new Boolean(false);
-//    ;
-//}
-//
-//if (form_include_billing_address) {
-//    form_include_billing_address = new Boolean(true);
-//    ;
-//} else {
-//    form_include_billing_address = new Boolean(false);
-//    ;
-//}
-//
-//if (form_include_shipping_address) {
-//    form_include_shipping_address = new Boolean(true);
-//    ;
-//} else {
-//    form_include_shipping_address = new Boolean(false);
-//    ;
-//}
-//
-//if (form_include_amount) {
-//    form_payment_button_text = form_payment_button_text + ' {{amount}}';
-//    ;
-//} 
-//callback function of stripe if the token is successfully generated
 var handler = StripeCheckout.configure({
     key: stripe_vars.publishable_key,
     image: 'https://stripe.com/img/documentation/checkout/marketplace.png',
@@ -60,21 +22,21 @@ var handler = StripeCheckout.configure({
             'action': 'ak_stripe_submit_payment',
             'post_id': 100,
             'security': ak_stripe_pop_up_nonce,
-            'datastring': {stripeToken: token.id, customername: args.billing_name, emailadress: token.email}
+            'datastring': {stripeToken: token.id, customername: args.billing_name, emailadress: token.email, amount: form_payment_amount, companyname: form_name, productdescription: form_description}
         };
         $.post(stripe_vars.ajaxurl, data, function (response) {
+
             if (response[0] === "success") {
                 window.location = window.location + "?_wpnonce=" + ak_stripe_pop_up_nonce + "&ak-stripe-payment-status=success&chargeid=" + response[1] + "&form-id=" + page_id;
             }
             else {
-                window.location = window.location + "?_wpnonce=" + ak_stripe_pop_up_nonce + "&ak-stripe-payment-status=failed&response=" + response[1];
+                window.location = window.location + "?_wpnonce=" + ak_stripe_pop_up_nonce + "&ak-stripe-payment-status=failed&type=" + response[1] + "&code=" + response[2] + "&chargeid=" + response[3];
             }
         });
         return false;
 
     }
 });
-
 
 //callback function of stripe createtoken being used for legacy stripe form
 function stripeResponseHandler(status, response) {
@@ -122,6 +84,10 @@ jQuery(document).ready(function ($) {
         this.parent('.form-group').toggleClass('has-error', erred);
         return this;
     };
+    jQuery.validator.addMethod("dollarsscents", function (value, element) {
+        return this.optional(element) || /^\d{0,4}(\.\d{0,2})?$/i.test(value);
+    }, "You must include two decimal places");
+
 
     function validateEmail(email) {
         var emailReg = new RegExp(/^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i);
@@ -183,10 +149,36 @@ jQuery(document).ready(function ($) {
         pop_up_button_id = ($(this).attr('id'));
         var temp_arr = pop_up_button_id.split('-');
         form_id = 'ak_stripe_checkout_form_' + temp_arr[1];
-        page_id=temp_arr[1];
-        var form_name = $('input[name=ak-stripe-checkout-name]').val();
-        var form_description = $("form#" + form_id + " input[name=ak-stripe-checkout-description]").val();
-        var form_payment_amount = $("form#" + form_id + ' input[name=ak-stripe-checkout-amount]').val();
+        $("#" + form_id).validate({
+            rules: {
+                "ak-stripe-custom-amount": {
+                    required: true,
+                    dollarsscents: true,
+                    min: .50
+                }
+            },
+            submitHandler: function (form) { // for demo
+                ak_stripe_checkout_submit(pop_up_button_id, e);
+            }
+        });
+
+    });
+
+    function ak_stripe_checkout_submit(id, e) {
+        pop_up_button_id = id;
+        var temp_arr = pop_up_button_id.split('-');
+        form_id = 'ak_stripe_checkout_form_' + temp_arr[1];
+        page_id = temp_arr[1];
+        if ($("form#" + form_id + ' input[name=ak-stripe-custom-amount]').hasClass("ak-stripe-custom-amount")) { //custom amount present in form
+            form_payment_amount = $("form#" + form_id + ' input[name=ak-stripe-custom-amount]').val() * 100;
+            form_payment_amount = Math.round(form_payment_amount);
+        }
+        else {
+            form_payment_amount = $("form#" + form_id + ' input[name=ak-stripe-checkout-amount]').val() * 100;
+            form_payment_amount = Math.round(form_payment_amount);
+        }
+        form_name = $("form#" + form_id + " input[name=ak-stripe-checkout-name]").val();
+        form_description = $("form#" + form_id + " input[name=ak-stripe-checkout-description]").val();
         var form_payment_button_text = $("form#" + form_id + ' input[name=ak-stripe-checkout-payment-button]').val();
         var form_include_amount = $("form#" + form_id + ' input[name=ak-stripe-checkout-include-amount]').val();
         var form_include_billing_address = $("form#" + form_id + ' input[name=ak-stripe-checkout-include-billing-address]').val();
@@ -232,6 +224,16 @@ jQuery(document).ready(function ($) {
             panelLabel: form_payment_button_text
         });
         e.preventDefault();
-    });
+    }
+    ;
+
+
+    function ak_stripe_checkout_convert_payment_amount(self) {
+        var amount = $(self).val();
+        amount = (amount / 100).toFixed(2);
+        $(self).val(amount);
+    }
+
+
 
 });
